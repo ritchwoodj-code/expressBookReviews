@@ -5,7 +5,11 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
-// Task 6: Register a new user
+const BASE_URL = 'http://localhost:5000';
+
+/* =========================================================================
+ * Task 6 — Register a new user
+ * ========================================================================= */
 public_users.post("/register", (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -18,7 +22,10 @@ public_users.post("/register", (req, res) => {
     return res.status(200).json({ message: `User '${username}' successfully registered. You can now login.` });
 });
 
-// Task 1: Get the book list — async/await with a Promise wrapper
+/* =========================================================================
+ * Task 1 — Get the book list (async/await with a Promise)
+ * Task 10 — Same endpoint demonstrated with Axios async/await
+ * ========================================================================= */
 public_users.get('/', async (req, res) => {
     try {
         const allBooks = await new Promise((resolve, reject) => {
@@ -30,7 +37,20 @@ public_users.get('/', async (req, res) => {
     }
 });
 
-// Task 2: Get book details by ISBN — async/await with a Promise wrapper
+// Task 10 — fetch all books via Axios (async/await)
+public_users.get('/axios/books', async (req, res) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/`);
+        return res.status(200).send(response.data);
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+});
+
+/* =========================================================================
+ * Task 2 — Get book details by ISBN (async/await with a Promise)
+ * Task 11 — Same endpoint demonstrated with Axios async/await
+ * ========================================================================= */
 public_users.get('/isbn/:isbn', async (req, res) => {
     const isbn = req.params.isbn;
     try {
@@ -45,7 +65,20 @@ public_users.get('/isbn/:isbn', async (req, res) => {
     }
 });
 
-// Task 3: Get book details by author — async/await with a Promise wrapper
+// Task 11 — fetch book by ISBN via Axios (async/await)
+public_users.get('/axios/isbn/:isbn', async (req, res) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/isbn/${req.params.isbn}`);
+        return res.status(200).json(response.data);
+    } catch (err) {
+        return res.status(404).json({ message: err.message });
+    }
+});
+
+/* =========================================================================
+ * Task 3 — Get book details by author (async/await with a Promise)
+ * Task 12 — Same endpoint demonstrated with Axios async/await
+ * ========================================================================= */
 public_users.get('/author/:author', async (req, res) => {
     const author = req.params.author;
     try {
@@ -63,7 +96,20 @@ public_users.get('/author/:author', async (req, res) => {
     }
 });
 
-// Task 4: Get books by title — async/await with a Promise wrapper
+// Task 12 — fetch books by author via Axios (async/await)
+public_users.get('/axios/author/:author', async (req, res) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/author/${encodeURIComponent(req.params.author)}`);
+        return res.status(200).json(response.data);
+    } catch (err) {
+        return res.status(404).json({ message: err.message });
+    }
+});
+
+/* =========================================================================
+ * Task 4 — Get books by title (async/await with a Promise)
+ * Task 13 — Same endpoint demonstrated with Axios async/await
+ * ========================================================================= */
 public_users.get('/title/:title', async (req, res) => {
     const title = req.params.title;
     try {
@@ -81,7 +127,19 @@ public_users.get('/title/:title', async (req, res) => {
     }
 });
 
-// Task 5: Get book review by ISBN
+// Task 13 — fetch books by title via Axios (async/await)
+public_users.get('/axios/title/:title', async (req, res) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/title/${encodeURIComponent(req.params.title)}`);
+        return res.status(200).json(response.data);
+    } catch (err) {
+        return res.status(404).json({ message: err.message });
+    }
+});
+
+/* =========================================================================
+ * Task 5 — Get book review by ISBN
+ * ========================================================================= */
 public_users.get('/review/:isbn', (req, res) => {
     const isbn = req.params.isbn;
     if (!books[isbn]) {
@@ -90,43 +148,4 @@ public_users.get('/review/:isbn', (req, res) => {
     return res.status(200).json(books[isbn].reviews);
 });
 
-/*
- * Tasks 10-13: Axios demonstrations — these call the public routes above
- * using async/await with Axios, satisfying the rubric requirement for
- * "promise callbacks or async/await with Axios."
- *
- * Usage from a Node REPL or a separate script:
- *   const axios = require('axios');
- *   const base = 'http://localhost:5000';
- *   (async () => console.log((await axios.get(base + '/')).data))();
- *   (async () => console.log((await axios.get(base + '/isbn/1')).data))();
- *   (async () => console.log((await axios.get(base + '/author/Jane Austen')).data))();
- *   (async () => console.log((await axios.get(base + '/title/Pride and Prejudice')).data))();
- */
-const BASE_URL = 'http://localhost:5000';
-
-const fetchAllBooks = async () => {
-    const response = await axios.get(`${BASE_URL}/`);
-    return response.data;
-};
-
-const fetchBookByISBN = async (isbn) => {
-    const response = await axios.get(`${BASE_URL}/isbn/${isbn}`);
-    return response.data;
-};
-
-const fetchBooksByAuthor = async (author) => {
-    const response = await axios.get(`${BASE_URL}/author/${encodeURIComponent(author)}`);
-    return response.data;
-};
-
-const fetchBooksByTitle = async (title) => {
-    const response = await axios.get(`${BASE_URL}/title/${encodeURIComponent(title)}`);
-    return response.data;
-};
-
 module.exports.general = public_users;
-module.exports.fetchAllBooks = fetchAllBooks;
-module.exports.fetchBookByISBN = fetchBookByISBN;
-module.exports.fetchBooksByAuthor = fetchBooksByAuthor;
-module.exports.fetchBooksByTitle = fetchBooksByTitle;
